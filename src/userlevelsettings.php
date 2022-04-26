@@ -1,0 +1,65 @@
+<?php
+/**
+ * PHPMaker 2022 user level settings
+ */
+namespace PHPMaker2022\project1;
+
+// User level info
+$USER_LEVELS = [["-2","Anonymous"],
+    ["0","Default"]];
+// User level priv info
+$USER_LEVEL_PRIVS = [["{38C46513-0B28-48C2-93E0-4388502DC508}ajuanproposal","-2","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}ajuanproposal","0","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}ajuanproyek","-2","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}ajuanproyek","0","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}anggota","-2","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}anggota","0","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}donasi","-2","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}donasi","0","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}donatur","-2","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}donatur","0","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}jabatan","-2","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}jabatan","0","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}kegiatan","-2","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}kegiatan","0","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}kontakajuanproyek","-2","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}kontakajuanproyek","0","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}kontakanggota","-2","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}kontakanggota","0","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}kontakdonatur","-2","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}kontakdonatur","0","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}kontaktargetproposal","-2","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}kontaktargetproposal","0","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}partisipasikegiatan","-2","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}partisipasikegiatan","0","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}partisipasiproyek","-2","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}partisipasiproyek","0","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}proyek","-2","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}proyek","0","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}targetproposal","-2","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}targetproposal","0","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}users","-2","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}users","0","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}userlevelpermissions","-2","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}userlevelpermissions","0","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}userlevels","-2","0"],
+    ["{38C46513-0B28-48C2-93E0-4388502DC508}userlevels","0","0"]];
+// User level table info
+$USER_LEVEL_TABLES = [["ajuanproposal","ajuanproposal","Ajuan Proposal",true,"{38C46513-0B28-48C2-93E0-4388502DC508}","AjuanproposalList"],
+    ["ajuanproyek","ajuanproyek","Ajuan Proyek",true,"{38C46513-0B28-48C2-93E0-4388502DC508}","AjuanproyekList"],
+    ["anggota","anggota","Anggota",true,"{38C46513-0B28-48C2-93E0-4388502DC508}","AnggotaList"],
+    ["donasi","donasi","Donasi",true,"{38C46513-0B28-48C2-93E0-4388502DC508}","DonasiList"],
+    ["donatur","donatur","Donatur",true,"{38C46513-0B28-48C2-93E0-4388502DC508}","DonaturList"],
+    ["jabatan","jabatan","Jabatan",true,"{38C46513-0B28-48C2-93E0-4388502DC508}","JabatanList"],
+    ["kegiatan","kegiatan","Kegiatan",true,"{38C46513-0B28-48C2-93E0-4388502DC508}","KegiatanList"],
+    ["kontakajuanproyek","kontakajuanproyek","Kontak Ajuan Proyek",true,"{38C46513-0B28-48C2-93E0-4388502DC508}","KontakajuanproyekList"],
+    ["kontakanggota","kontakanggota","Kontak Anggota",true,"{38C46513-0B28-48C2-93E0-4388502DC508}","KontakanggotaList"],
+    ["kontakdonatur","kontakdonatur","Kontak Donatur",true,"{38C46513-0B28-48C2-93E0-4388502DC508}","KontakdonaturList"],
+    ["kontaktargetproposal","kontaktargetproposal","Kontak Target Proposal",true,"{38C46513-0B28-48C2-93E0-4388502DC508}","KontaktargetproposalList"],
+    ["partisipasikegiatan","partisipasikegiatan","Partisipasi Kegiatan",true,"{38C46513-0B28-48C2-93E0-4388502DC508}","PartisipasikegiatanList"],
+    ["partisipasiproyek","partisipasiproyek","Partisipasi Proyek",true,"{38C46513-0B28-48C2-93E0-4388502DC508}","PartisipasiproyekList"],
+    ["proyek","proyek","Proyek",true,"{38C46513-0B28-48C2-93E0-4388502DC508}","ProyekList"],
+    ["targetproposal","targetproposal","Target Proposal",true,"{38C46513-0B28-48C2-93E0-4388502DC508}","TargetproposalList"],
+    ["users","users","users",true,"{38C46513-0B28-48C2-93E0-4388502DC508}","UsersList"],
+    ["userlevelpermissions","userlevelpermissions","userlevelpermissions",true,"{38C46513-0B28-48C2-93E0-4388502DC508}","UserlevelpermissionsList"],
+    ["userlevels","userlevels","userlevels",true,"{38C46513-0B28-48C2-93E0-4388502DC508}","UserlevelsList"]];

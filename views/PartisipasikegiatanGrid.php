@@ -1,0 +1,576 @@
+<?php
+
+namespace PHPMaker2022\project1;
+
+// Set up and run Grid object
+$Grid = Container("PartisipasikegiatanGrid");
+$Grid->run();
+?>
+<?php if (!$Grid->isExport()) { ?>
+<script>
+var fpartisipasikegiatangrid;
+loadjs.ready(["wrapper", "head"], function () {
+    var $ = jQuery;
+    // Form object
+    fpartisipasikegiatangrid = new ew.Form("fpartisipasikegiatangrid", "grid");
+    fpartisipasikegiatangrid.formKeyCountName = "<?= $Grid->FormKeyCountName ?>";
+
+    // Add fields
+    var currentTable = <?= JsonEncode($Grid->toClientVar()) ?>;
+    ew.deepAssign(ew.vars, { tables: { partisipasikegiatan: currentTable } });
+    var fields = currentTable.fields;
+    fpartisipasikegiatangrid.addFields([
+        ["idAnggota", [fields.idAnggota.visible && fields.idAnggota.required ? ew.Validators.required(fields.idAnggota.caption) : null], fields.idAnggota.isInvalid],
+        ["idKegiatan", [fields.idKegiatan.visible && fields.idKegiatan.required ? ew.Validators.required(fields.idKegiatan.caption) : null], fields.idKegiatan.isInvalid]
+    ]);
+
+    // Check empty row
+    fpartisipasikegiatangrid.emptyRow = function (rowIndex) {
+        var fobj = this.getForm(),
+            fields = [["idAnggota",false],["idKegiatan",false]];
+        if (fields.some(field => ew.valueChanged(fobj, rowIndex, ...field)))
+            return false;
+        return true;
+    }
+
+    // Form_CustomValidate
+    fpartisipasikegiatangrid.customValidate = function(fobj) { // DO NOT CHANGE THIS LINE!
+        // Your custom validation code here, return false if invalid.
+        return true;
+    }
+
+    // Use JavaScript validation or not
+    fpartisipasikegiatangrid.validateRequired = ew.CLIENT_VALIDATE;
+
+    // Dynamic selection lists
+    fpartisipasikegiatangrid.lists.idAnggota = <?= $Grid->idAnggota->toClientList($Grid) ?>;
+    fpartisipasikegiatangrid.lists.idKegiatan = <?= $Grid->idKegiatan->toClientList($Grid) ?>;
+    loadjs.done("fpartisipasikegiatangrid");
+});
+</script>
+<?php } ?>
+<?php
+$Grid->renderOtherOptions();
+?>
+<?php if ($Grid->TotalRecords > 0 || $Grid->CurrentAction) { ?>
+<div class="card ew-card ew-grid<?php if ($Grid->isAddOrEdit()) { ?> ew-grid-add-edit<?php } ?> partisipasikegiatan">
+<div id="fpartisipasikegiatangrid" class="ew-form ew-list-form">
+<div id="gmp_partisipasikegiatan" class="<?= ResponsiveTableClass() ?>card-body ew-grid-middle-panel">
+<table id="tbl_partisipasikegiatangrid" class="table table-bordered table-hover table-sm ew-table"><!-- .ew-table -->
+<thead>
+    <tr class="ew-table-header">
+<?php
+// Header row
+$Grid->RowType = ROWTYPE_HEADER;
+
+// Render list options
+$Grid->renderListOptions();
+
+// Render list options (header, left)
+$Grid->ListOptions->render("header", "left");
+?>
+<?php if ($Grid->idAnggota->Visible) { // idAnggota ?>
+        <th data-name="idAnggota" class="<?= $Grid->idAnggota->headerCellClass() ?>"><div id="elh_partisipasikegiatan_idAnggota" class="partisipasikegiatan_idAnggota"><?= $Grid->renderFieldHeader($Grid->idAnggota) ?></div></th>
+<?php } ?>
+<?php if ($Grid->idKegiatan->Visible) { // idKegiatan ?>
+        <th data-name="idKegiatan" class="<?= $Grid->idKegiatan->headerCellClass() ?>"><div id="elh_partisipasikegiatan_idKegiatan" class="partisipasikegiatan_idKegiatan"><?= $Grid->renderFieldHeader($Grid->idKegiatan) ?></div></th>
+<?php } ?>
+<?php
+// Render list options (header, right)
+$Grid->ListOptions->render("header", "right");
+?>
+    </tr>
+</thead>
+<tbody>
+<?php
+$Grid->StartRecord = 1;
+$Grid->StopRecord = $Grid->TotalRecords; // Show all records
+
+// Restore number of post back records
+if ($CurrentForm && ($Grid->isConfirm() || $Grid->EventCancelled)) {
+    $CurrentForm->Index = -1;
+    if ($CurrentForm->hasValue($Grid->FormKeyCountName) && ($Grid->isGridAdd() || $Grid->isGridEdit() || $Grid->isConfirm())) {
+        $Grid->KeyCount = $CurrentForm->getValue($Grid->FormKeyCountName);
+        $Grid->StopRecord = $Grid->StartRecord + $Grid->KeyCount - 1;
+    }
+}
+$Grid->RecordCount = $Grid->StartRecord - 1;
+if ($Grid->Recordset && !$Grid->Recordset->EOF) {
+    // Nothing to do
+} elseif ($Grid->isGridAdd() && !$Grid->AllowAddDeleteRow && $Grid->StopRecord == 0) {
+    $Grid->StopRecord = $Grid->GridAddRowCount;
+}
+
+// Initialize aggregate
+$Grid->RowType = ROWTYPE_AGGREGATEINIT;
+$Grid->resetAttributes();
+$Grid->renderRow();
+while ($Grid->RecordCount < $Grid->StopRecord) {
+    $Grid->RecordCount++;
+    if ($Grid->RecordCount >= $Grid->StartRecord) {
+        $Grid->RowCount++;
+        if ($Grid->isAdd() || $Grid->isGridAdd() || $Grid->isGridEdit() || $Grid->isConfirm()) {
+            $Grid->RowIndex++;
+            $CurrentForm->Index = $Grid->RowIndex;
+            if ($CurrentForm->hasValue($Grid->FormActionName) && ($Grid->isConfirm() || $Grid->EventCancelled)) {
+                $Grid->RowAction = strval($CurrentForm->getValue($Grid->FormActionName));
+            } elseif ($Grid->isGridAdd()) {
+                $Grid->RowAction = "insert";
+            } else {
+                $Grid->RowAction = "";
+            }
+        }
+
+        // Set up key count
+        $Grid->KeyCount = $Grid->RowIndex;
+
+        // Init row class and style
+        $Grid->resetAttributes();
+        $Grid->CssClass = "";
+        if ($Grid->isGridAdd()) {
+            if ($Grid->CurrentMode == "copy") {
+                $Grid->loadRowValues($Grid->Recordset); // Load row values
+                $Grid->OldKey = $Grid->getKey(true); // Get from CurrentValue
+            } else {
+                $Grid->loadRowValues(); // Load default values
+                $Grid->OldKey = "";
+            }
+        } else {
+            $Grid->loadRowValues($Grid->Recordset); // Load row values
+            $Grid->OldKey = $Grid->getKey(true); // Get from CurrentValue
+        }
+        $Grid->setKey($Grid->OldKey);
+        $Grid->RowType = ROWTYPE_VIEW; // Render view
+        if ($Grid->isGridAdd()) { // Grid add
+            $Grid->RowType = ROWTYPE_ADD; // Render add
+        }
+        if ($Grid->isGridAdd() && $Grid->EventCancelled && !$CurrentForm->hasValue("k_blankrow")) { // Insert failed
+            $Grid->restoreCurrentRowFormValues($Grid->RowIndex); // Restore form values
+        }
+        if ($Grid->isGridEdit()) { // Grid edit
+            if ($Grid->EventCancelled) {
+                $Grid->restoreCurrentRowFormValues($Grid->RowIndex); // Restore form values
+            }
+            if ($Grid->RowAction == "insert") {
+                $Grid->RowType = ROWTYPE_ADD; // Render add
+            } else {
+                $Grid->RowType = ROWTYPE_EDIT; // Render edit
+            }
+        }
+        if ($Grid->isGridEdit() && ($Grid->RowType == ROWTYPE_EDIT || $Grid->RowType == ROWTYPE_ADD) && $Grid->EventCancelled) { // Update failed
+            $Grid->restoreCurrentRowFormValues($Grid->RowIndex); // Restore form values
+        }
+        if ($Grid->RowType == ROWTYPE_EDIT) { // Edit row
+            $Grid->EditRowCount++;
+        }
+        if ($Grid->isConfirm()) { // Confirm row
+            $Grid->restoreCurrentRowFormValues($Grid->RowIndex); // Restore form values
+        }
+
+        // Set up row attributes
+        $Grid->RowAttrs->merge([
+            "data-rowindex" => $Grid->RowCount,
+            "id" => "r" . $Grid->RowCount . "_partisipasikegiatan",
+            "data-rowtype" => $Grid->RowType,
+            "class" => ($Grid->RowCount % 2 != 1) ? "ew-table-alt-row" : "",
+        ]);
+        if ($Grid->isAdd() && $Grid->RowType == ROWTYPE_ADD || $Grid->isEdit() && $Grid->RowType == ROWTYPE_EDIT) { // Inline-Add/Edit row
+            $Grid->RowAttrs->appendClass("table-active");
+        }
+
+        // Render row
+        $Grid->renderRow();
+
+        // Render list options
+        $Grid->renderListOptions();
+
+        // Skip delete row / empty row for confirm page
+        if (
+            $Page->RowAction != "delete" &&
+            $Page->RowAction != "insertdelete" &&
+            !($Page->RowAction == "insert" && $Page->isConfirm() && $Page->emptyRow())
+        ) {
+?>
+    <tr <?= $Grid->rowAttributes() ?>>
+<?php
+// Render list options (body, left)
+$Grid->ListOptions->render("body", "left", $Grid->RowCount);
+?>
+    <?php if ($Grid->idAnggota->Visible) { // idAnggota ?>
+        <td data-name="idAnggota"<?= $Grid->idAnggota->cellAttributes() ?>>
+<?php if ($Grid->RowType == ROWTYPE_ADD) { // Add record ?>
+<span id="el<?= $Grid->RowCount ?>_partisipasikegiatan_idAnggota" class="el_partisipasikegiatan_idAnggota">
+    <select
+        id="x<?= $Grid->RowIndex ?>_idAnggota"
+        name="x<?= $Grid->RowIndex ?>_idAnggota"
+        class="form-select ew-select<?= $Grid->idAnggota->isInvalidClass() ?>"
+        data-select2-id="fpartisipasikegiatangrid_x<?= $Grid->RowIndex ?>_idAnggota"
+        data-table="partisipasikegiatan"
+        data-field="x_idAnggota"
+        data-value-separator="<?= $Grid->idAnggota->displayValueSeparatorAttribute() ?>"
+        data-placeholder="<?= HtmlEncode($Grid->idAnggota->getPlaceHolder()) ?>"
+        <?= $Grid->idAnggota->editAttributes() ?>>
+        <?= $Grid->idAnggota->selectOptionListHtml("x{$Grid->RowIndex}_idAnggota") ?>
+    </select>
+    <div class="invalid-feedback"><?= $Grid->idAnggota->getErrorMessage() ?></div>
+<?= $Grid->idAnggota->Lookup->getParamTag($Grid, "p_x" . $Grid->RowIndex . "_idAnggota") ?>
+<script>
+loadjs.ready("fpartisipasikegiatangrid", function() {
+    var options = { name: "x<?= $Grid->RowIndex ?>_idAnggota", selectId: "fpartisipasikegiatangrid_x<?= $Grid->RowIndex ?>_idAnggota" },
+        el = document.querySelector("select[data-select2-id='" + options.selectId + "']");
+    options.dropdownParent = el.closest("#ew-modal-dialog, #ew-add-opt-dialog");
+    if (fpartisipasikegiatangrid.lists.idAnggota.lookupOptions.length) {
+        options.data = { id: "x<?= $Grid->RowIndex ?>_idAnggota", form: "fpartisipasikegiatangrid" };
+    } else {
+        options.ajax = { id: "x<?= $Grid->RowIndex ?>_idAnggota", form: "fpartisipasikegiatangrid", limit: ew.LOOKUP_PAGE_SIZE };
+    }
+    options.minimumResultsForSearch = Infinity;
+    options = Object.assign({}, ew.selectOptions, options, ew.vars.tables.partisipasikegiatan.fields.idAnggota.selectOptions);
+    ew.createSelect(options);
+});
+</script>
+</span>
+<input type="hidden" data-table="partisipasikegiatan" data-field="x_idAnggota" data-hidden="1" name="o<?= $Grid->RowIndex ?>_idAnggota" id="o<?= $Grid->RowIndex ?>_idAnggota" value="<?= HtmlEncode($Grid->idAnggota->OldValue) ?>">
+<?php } ?>
+<?php if ($Grid->RowType == ROWTYPE_EDIT) { // Edit record ?>
+    <select
+        id="x<?= $Grid->RowIndex ?>_idAnggota"
+        name="x<?= $Grid->RowIndex ?>_idAnggota"
+        class="form-select ew-select<?= $Grid->idAnggota->isInvalidClass() ?>"
+        data-select2-id="fpartisipasikegiatangrid_x<?= $Grid->RowIndex ?>_idAnggota"
+        data-table="partisipasikegiatan"
+        data-field="x_idAnggota"
+        data-value-separator="<?= $Grid->idAnggota->displayValueSeparatorAttribute() ?>"
+        data-placeholder="<?= HtmlEncode($Grid->idAnggota->getPlaceHolder()) ?>"
+        <?= $Grid->idAnggota->editAttributes() ?>>
+        <?= $Grid->idAnggota->selectOptionListHtml("x{$Grid->RowIndex}_idAnggota") ?>
+    </select>
+    <div class="invalid-feedback"><?= $Grid->idAnggota->getErrorMessage() ?></div>
+<?= $Grid->idAnggota->Lookup->getParamTag($Grid, "p_x" . $Grid->RowIndex . "_idAnggota") ?>
+<script>
+loadjs.ready("fpartisipasikegiatangrid", function() {
+    var options = { name: "x<?= $Grid->RowIndex ?>_idAnggota", selectId: "fpartisipasikegiatangrid_x<?= $Grid->RowIndex ?>_idAnggota" },
+        el = document.querySelector("select[data-select2-id='" + options.selectId + "']");
+    options.dropdownParent = el.closest("#ew-modal-dialog, #ew-add-opt-dialog");
+    if (fpartisipasikegiatangrid.lists.idAnggota.lookupOptions.length) {
+        options.data = { id: "x<?= $Grid->RowIndex ?>_idAnggota", form: "fpartisipasikegiatangrid" };
+    } else {
+        options.ajax = { id: "x<?= $Grid->RowIndex ?>_idAnggota", form: "fpartisipasikegiatangrid", limit: ew.LOOKUP_PAGE_SIZE };
+    }
+    options.minimumResultsForSearch = Infinity;
+    options = Object.assign({}, ew.selectOptions, options, ew.vars.tables.partisipasikegiatan.fields.idAnggota.selectOptions);
+    ew.createSelect(options);
+});
+</script>
+<input type="hidden" data-table="partisipasikegiatan" data-field="x_idAnggota" data-hidden="1" name="o<?= $Grid->RowIndex ?>_idAnggota" id="o<?= $Grid->RowIndex ?>_idAnggota" value="<?= HtmlEncode($Grid->idAnggota->OldValue ?? $Grid->idAnggota->CurrentValue) ?>">
+<?php } ?>
+<?php if ($Grid->RowType == ROWTYPE_VIEW) { // View record ?>
+<span id="el<?= $Grid->RowCount ?>_partisipasikegiatan_idAnggota" class="el_partisipasikegiatan_idAnggota">
+<span<?= $Grid->idAnggota->viewAttributes() ?>>
+<?= $Grid->idAnggota->getViewValue() ?></span>
+</span>
+<?php if ($Grid->isConfirm()) { ?>
+<input type="hidden" data-table="partisipasikegiatan" data-field="x_idAnggota" data-hidden="1" name="fpartisipasikegiatangrid$x<?= $Grid->RowIndex ?>_idAnggota" id="fpartisipasikegiatangrid$x<?= $Grid->RowIndex ?>_idAnggota" value="<?= HtmlEncode($Grid->idAnggota->FormValue) ?>">
+<input type="hidden" data-table="partisipasikegiatan" data-field="x_idAnggota" data-hidden="1" name="fpartisipasikegiatangrid$o<?= $Grid->RowIndex ?>_idAnggota" id="fpartisipasikegiatangrid$o<?= $Grid->RowIndex ?>_idAnggota" value="<?= HtmlEncode($Grid->idAnggota->OldValue) ?>">
+<?php } ?>
+<?php } ?>
+</td>
+    <?php } else { ?>
+            <input type="hidden" data-table="partisipasikegiatan" data-field="x_idAnggota" data-hidden="1" name="x<?= $Grid->RowIndex ?>_idAnggota" id="x<?= $Grid->RowIndex ?>_idAnggota" value="<?= HtmlEncode($Grid->idAnggota->CurrentValue) ?>">
+    <?php } ?>
+    <?php if ($Grid->idKegiatan->Visible) { // idKegiatan ?>
+        <td data-name="idKegiatan"<?= $Grid->idKegiatan->cellAttributes() ?>>
+<?php if ($Grid->RowType == ROWTYPE_ADD) { // Add record ?>
+<?php if ($Grid->idKegiatan->getSessionValue() != "") { ?>
+<span id="el<?= $Grid->RowCount ?>_partisipasikegiatan_idKegiatan" class="el_partisipasikegiatan_idKegiatan">
+<span<?= $Grid->idKegiatan->viewAttributes() ?>>
+<span class="form-control-plaintext"><?= $Grid->idKegiatan->getDisplayValue($Grid->idKegiatan->ViewValue) ?></span></span>
+</span>
+<input type="hidden" id="x<?= $Grid->RowIndex ?>_idKegiatan" name="x<?= $Grid->RowIndex ?>_idKegiatan" value="<?= HtmlEncode(FormatNumber($Grid->idKegiatan->CurrentValue, $Grid->idKegiatan->formatPattern())) ?>" data-hidden="1">
+<?php } else { ?>
+<span id="el<?= $Grid->RowCount ?>_partisipasikegiatan_idKegiatan" class="el_partisipasikegiatan_idKegiatan">
+    <select
+        id="x<?= $Grid->RowIndex ?>_idKegiatan"
+        name="x<?= $Grid->RowIndex ?>_idKegiatan"
+        class="form-select ew-select<?= $Grid->idKegiatan->isInvalidClass() ?>"
+        data-select2-id="fpartisipasikegiatangrid_x<?= $Grid->RowIndex ?>_idKegiatan"
+        data-table="partisipasikegiatan"
+        data-field="x_idKegiatan"
+        data-value-separator="<?= $Grid->idKegiatan->displayValueSeparatorAttribute() ?>"
+        data-placeholder="<?= HtmlEncode($Grid->idKegiatan->getPlaceHolder()) ?>"
+        <?= $Grid->idKegiatan->editAttributes() ?>>
+        <?= $Grid->idKegiatan->selectOptionListHtml("x{$Grid->RowIndex}_idKegiatan") ?>
+    </select>
+    <div class="invalid-feedback"><?= $Grid->idKegiatan->getErrorMessage() ?></div>
+<?= $Grid->idKegiatan->Lookup->getParamTag($Grid, "p_x" . $Grid->RowIndex . "_idKegiatan") ?>
+<script>
+loadjs.ready("fpartisipasikegiatangrid", function() {
+    var options = { name: "x<?= $Grid->RowIndex ?>_idKegiatan", selectId: "fpartisipasikegiatangrid_x<?= $Grid->RowIndex ?>_idKegiatan" },
+        el = document.querySelector("select[data-select2-id='" + options.selectId + "']");
+    options.dropdownParent = el.closest("#ew-modal-dialog, #ew-add-opt-dialog");
+    if (fpartisipasikegiatangrid.lists.idKegiatan.lookupOptions.length) {
+        options.data = { id: "x<?= $Grid->RowIndex ?>_idKegiatan", form: "fpartisipasikegiatangrid" };
+    } else {
+        options.ajax = { id: "x<?= $Grid->RowIndex ?>_idKegiatan", form: "fpartisipasikegiatangrid", limit: ew.LOOKUP_PAGE_SIZE };
+    }
+    options.minimumResultsForSearch = Infinity;
+    options = Object.assign({}, ew.selectOptions, options, ew.vars.tables.partisipasikegiatan.fields.idKegiatan.selectOptions);
+    ew.createSelect(options);
+});
+</script>
+</span>
+<?php } ?>
+<input type="hidden" data-table="partisipasikegiatan" data-field="x_idKegiatan" data-hidden="1" name="o<?= $Grid->RowIndex ?>_idKegiatan" id="o<?= $Grid->RowIndex ?>_idKegiatan" value="<?= HtmlEncode($Grid->idKegiatan->OldValue) ?>">
+<?php } ?>
+<?php if ($Grid->RowType == ROWTYPE_EDIT) { // Edit record ?>
+<?php if ($Grid->idKegiatan->getSessionValue() != "") { ?>
+<span id="el<?= $Grid->RowCount ?>_partisipasikegiatan_idKegiatan" class="el_partisipasikegiatan_idKegiatan">
+<span<?= $Grid->idKegiatan->viewAttributes() ?>>
+<span class="form-control-plaintext"><?= $Grid->idKegiatan->getDisplayValue($Grid->idKegiatan->EditValue) ?></span></span>
+</span>
+<input type="hidden" id="x<?= $Grid->RowIndex ?>_idKegiatan" name="x<?= $Grid->RowIndex ?>_idKegiatan" value="<?= HtmlEncode($Grid->idKegiatan->CurrentValue) ?>" data-hidden="1">
+<?php } else { ?>
+    <select
+        id="x<?= $Grid->RowIndex ?>_idKegiatan"
+        name="x<?= $Grid->RowIndex ?>_idKegiatan"
+        class="form-select ew-select<?= $Grid->idKegiatan->isInvalidClass() ?>"
+        data-select2-id="fpartisipasikegiatangrid_x<?= $Grid->RowIndex ?>_idKegiatan"
+        data-table="partisipasikegiatan"
+        data-field="x_idKegiatan"
+        data-value-separator="<?= $Grid->idKegiatan->displayValueSeparatorAttribute() ?>"
+        data-placeholder="<?= HtmlEncode($Grid->idKegiatan->getPlaceHolder()) ?>"
+        <?= $Grid->idKegiatan->editAttributes() ?>>
+        <?= $Grid->idKegiatan->selectOptionListHtml("x{$Grid->RowIndex}_idKegiatan") ?>
+    </select>
+    <div class="invalid-feedback"><?= $Grid->idKegiatan->getErrorMessage() ?></div>
+<?= $Grid->idKegiatan->Lookup->getParamTag($Grid, "p_x" . $Grid->RowIndex . "_idKegiatan") ?>
+<script>
+loadjs.ready("fpartisipasikegiatangrid", function() {
+    var options = { name: "x<?= $Grid->RowIndex ?>_idKegiatan", selectId: "fpartisipasikegiatangrid_x<?= $Grid->RowIndex ?>_idKegiatan" },
+        el = document.querySelector("select[data-select2-id='" + options.selectId + "']");
+    options.dropdownParent = el.closest("#ew-modal-dialog, #ew-add-opt-dialog");
+    if (fpartisipasikegiatangrid.lists.idKegiatan.lookupOptions.length) {
+        options.data = { id: "x<?= $Grid->RowIndex ?>_idKegiatan", form: "fpartisipasikegiatangrid" };
+    } else {
+        options.ajax = { id: "x<?= $Grid->RowIndex ?>_idKegiatan", form: "fpartisipasikegiatangrid", limit: ew.LOOKUP_PAGE_SIZE };
+    }
+    options.minimumResultsForSearch = Infinity;
+    options = Object.assign({}, ew.selectOptions, options, ew.vars.tables.partisipasikegiatan.fields.idKegiatan.selectOptions);
+    ew.createSelect(options);
+});
+</script>
+<?php } ?>
+<input type="hidden" data-table="partisipasikegiatan" data-field="x_idKegiatan" data-hidden="1" name="o<?= $Grid->RowIndex ?>_idKegiatan" id="o<?= $Grid->RowIndex ?>_idKegiatan" value="<?= HtmlEncode($Grid->idKegiatan->OldValue ?? $Grid->idKegiatan->CurrentValue) ?>">
+<?php } ?>
+<?php if ($Grid->RowType == ROWTYPE_VIEW) { // View record ?>
+<span id="el<?= $Grid->RowCount ?>_partisipasikegiatan_idKegiatan" class="el_partisipasikegiatan_idKegiatan">
+<span<?= $Grid->idKegiatan->viewAttributes() ?>>
+<?= $Grid->idKegiatan->getViewValue() ?></span>
+</span>
+<?php if ($Grid->isConfirm()) { ?>
+<input type="hidden" data-table="partisipasikegiatan" data-field="x_idKegiatan" data-hidden="1" name="fpartisipasikegiatangrid$x<?= $Grid->RowIndex ?>_idKegiatan" id="fpartisipasikegiatangrid$x<?= $Grid->RowIndex ?>_idKegiatan" value="<?= HtmlEncode($Grid->idKegiatan->FormValue) ?>">
+<input type="hidden" data-table="partisipasikegiatan" data-field="x_idKegiatan" data-hidden="1" name="fpartisipasikegiatangrid$o<?= $Grid->RowIndex ?>_idKegiatan" id="fpartisipasikegiatangrid$o<?= $Grid->RowIndex ?>_idKegiatan" value="<?= HtmlEncode($Grid->idKegiatan->OldValue) ?>">
+<?php } ?>
+<?php } ?>
+</td>
+    <?php } else { ?>
+            <input type="hidden" data-table="partisipasikegiatan" data-field="x_idKegiatan" data-hidden="1" name="x<?= $Grid->RowIndex ?>_idKegiatan" id="x<?= $Grid->RowIndex ?>_idKegiatan" value="<?= HtmlEncode($Grid->idKegiatan->CurrentValue) ?>">
+    <?php } ?>
+<?php
+// Render list options (body, right)
+$Grid->ListOptions->render("body", "right", $Grid->RowCount);
+?>
+    </tr>
+<?php if ($Grid->RowType == ROWTYPE_ADD || $Grid->RowType == ROWTYPE_EDIT) { ?>
+<script>
+loadjs.ready(["fpartisipasikegiatangrid","load"], () => fpartisipasikegiatangrid.updateLists(<?= $Grid->RowIndex ?>));
+</script>
+<?php } ?>
+<?php
+    }
+    } // End delete row checking
+    if (!$Grid->isGridAdd() || $Grid->CurrentMode == "copy")
+        if (!$Grid->Recordset->EOF) {
+            $Grid->Recordset->moveNext();
+        }
+}
+?>
+<?php
+if ($Grid->CurrentMode == "add" || $Grid->CurrentMode == "copy" || $Grid->CurrentMode == "edit") {
+    $Grid->RowIndex = '$rowindex$';
+    $Grid->loadRowValues();
+
+    // Set row properties
+    $Grid->resetAttributes();
+    $Grid->RowAttrs->merge(["data-rowindex" => $Grid->RowIndex, "id" => "r0_partisipasikegiatan", "data-rowtype" => ROWTYPE_ADD]);
+    $Grid->RowAttrs->appendClass("ew-template");
+
+    // Reset previous form error if any
+    $Grid->resetFormError();
+
+    // Render row
+    $Grid->RowType = ROWTYPE_ADD;
+    $Grid->renderRow();
+
+    // Render list options
+    $Grid->renderListOptions();
+    $Grid->StartRowCount = 0;
+?>
+    <tr <?= $Grid->rowAttributes() ?>>
+<?php
+// Render list options (body, left)
+$Grid->ListOptions->render("body", "left", $Grid->RowIndex);
+?>
+    <?php if ($Grid->idAnggota->Visible) { // idAnggota ?>
+        <td data-name="idAnggota">
+<?php if (!$Grid->isConfirm()) { ?>
+<span id="el$rowindex$_partisipasikegiatan_idAnggota" class="el_partisipasikegiatan_idAnggota">
+    <select
+        id="x<?= $Grid->RowIndex ?>_idAnggota"
+        name="x<?= $Grid->RowIndex ?>_idAnggota"
+        class="form-select ew-select<?= $Grid->idAnggota->isInvalidClass() ?>"
+        data-select2-id="fpartisipasikegiatangrid_x<?= $Grid->RowIndex ?>_idAnggota"
+        data-table="partisipasikegiatan"
+        data-field="x_idAnggota"
+        data-value-separator="<?= $Grid->idAnggota->displayValueSeparatorAttribute() ?>"
+        data-placeholder="<?= HtmlEncode($Grid->idAnggota->getPlaceHolder()) ?>"
+        <?= $Grid->idAnggota->editAttributes() ?>>
+        <?= $Grid->idAnggota->selectOptionListHtml("x{$Grid->RowIndex}_idAnggota") ?>
+    </select>
+    <div class="invalid-feedback"><?= $Grid->idAnggota->getErrorMessage() ?></div>
+<?= $Grid->idAnggota->Lookup->getParamTag($Grid, "p_x" . $Grid->RowIndex . "_idAnggota") ?>
+<script>
+loadjs.ready("fpartisipasikegiatangrid", function() {
+    var options = { name: "x<?= $Grid->RowIndex ?>_idAnggota", selectId: "fpartisipasikegiatangrid_x<?= $Grid->RowIndex ?>_idAnggota" },
+        el = document.querySelector("select[data-select2-id='" + options.selectId + "']");
+    options.dropdownParent = el.closest("#ew-modal-dialog, #ew-add-opt-dialog");
+    if (fpartisipasikegiatangrid.lists.idAnggota.lookupOptions.length) {
+        options.data = { id: "x<?= $Grid->RowIndex ?>_idAnggota", form: "fpartisipasikegiatangrid" };
+    } else {
+        options.ajax = { id: "x<?= $Grid->RowIndex ?>_idAnggota", form: "fpartisipasikegiatangrid", limit: ew.LOOKUP_PAGE_SIZE };
+    }
+    options.minimumResultsForSearch = Infinity;
+    options = Object.assign({}, ew.selectOptions, options, ew.vars.tables.partisipasikegiatan.fields.idAnggota.selectOptions);
+    ew.createSelect(options);
+});
+</script>
+</span>
+<?php } else { ?>
+<span id="el$rowindex$_partisipasikegiatan_idAnggota" class="el_partisipasikegiatan_idAnggota">
+<span<?= $Grid->idAnggota->viewAttributes() ?>>
+<span class="form-control-plaintext"><?= $Grid->idAnggota->getDisplayValue($Grid->idAnggota->ViewValue) ?></span></span>
+</span>
+<input type="hidden" data-table="partisipasikegiatan" data-field="x_idAnggota" data-hidden="1" name="x<?= $Grid->RowIndex ?>_idAnggota" id="x<?= $Grid->RowIndex ?>_idAnggota" value="<?= HtmlEncode($Grid->idAnggota->FormValue) ?>">
+<?php } ?>
+<input type="hidden" data-table="partisipasikegiatan" data-field="x_idAnggota" data-hidden="1" name="o<?= $Grid->RowIndex ?>_idAnggota" id="o<?= $Grid->RowIndex ?>_idAnggota" value="<?= HtmlEncode($Grid->idAnggota->OldValue) ?>">
+</td>
+    <?php } ?>
+    <?php if ($Grid->idKegiatan->Visible) { // idKegiatan ?>
+        <td data-name="idKegiatan">
+<?php if (!$Grid->isConfirm()) { ?>
+<?php if ($Grid->idKegiatan->getSessionValue() != "") { ?>
+<span id="el$rowindex$_partisipasikegiatan_idKegiatan" class="el_partisipasikegiatan_idKegiatan">
+<span<?= $Grid->idKegiatan->viewAttributes() ?>>
+<span class="form-control-plaintext"><?= $Grid->idKegiatan->getDisplayValue($Grid->idKegiatan->ViewValue) ?></span></span>
+</span>
+<input type="hidden" id="x<?= $Grid->RowIndex ?>_idKegiatan" name="x<?= $Grid->RowIndex ?>_idKegiatan" value="<?= HtmlEncode(FormatNumber($Grid->idKegiatan->CurrentValue, $Grid->idKegiatan->formatPattern())) ?>" data-hidden="1">
+<?php } else { ?>
+<span id="el$rowindex$_partisipasikegiatan_idKegiatan" class="el_partisipasikegiatan_idKegiatan">
+    <select
+        id="x<?= $Grid->RowIndex ?>_idKegiatan"
+        name="x<?= $Grid->RowIndex ?>_idKegiatan"
+        class="form-select ew-select<?= $Grid->idKegiatan->isInvalidClass() ?>"
+        data-select2-id="fpartisipasikegiatangrid_x<?= $Grid->RowIndex ?>_idKegiatan"
+        data-table="partisipasikegiatan"
+        data-field="x_idKegiatan"
+        data-value-separator="<?= $Grid->idKegiatan->displayValueSeparatorAttribute() ?>"
+        data-placeholder="<?= HtmlEncode($Grid->idKegiatan->getPlaceHolder()) ?>"
+        <?= $Grid->idKegiatan->editAttributes() ?>>
+        <?= $Grid->idKegiatan->selectOptionListHtml("x{$Grid->RowIndex}_idKegiatan") ?>
+    </select>
+    <div class="invalid-feedback"><?= $Grid->idKegiatan->getErrorMessage() ?></div>
+<?= $Grid->idKegiatan->Lookup->getParamTag($Grid, "p_x" . $Grid->RowIndex . "_idKegiatan") ?>
+<script>
+loadjs.ready("fpartisipasikegiatangrid", function() {
+    var options = { name: "x<?= $Grid->RowIndex ?>_idKegiatan", selectId: "fpartisipasikegiatangrid_x<?= $Grid->RowIndex ?>_idKegiatan" },
+        el = document.querySelector("select[data-select2-id='" + options.selectId + "']");
+    options.dropdownParent = el.closest("#ew-modal-dialog, #ew-add-opt-dialog");
+    if (fpartisipasikegiatangrid.lists.idKegiatan.lookupOptions.length) {
+        options.data = { id: "x<?= $Grid->RowIndex ?>_idKegiatan", form: "fpartisipasikegiatangrid" };
+    } else {
+        options.ajax = { id: "x<?= $Grid->RowIndex ?>_idKegiatan", form: "fpartisipasikegiatangrid", limit: ew.LOOKUP_PAGE_SIZE };
+    }
+    options.minimumResultsForSearch = Infinity;
+    options = Object.assign({}, ew.selectOptions, options, ew.vars.tables.partisipasikegiatan.fields.idKegiatan.selectOptions);
+    ew.createSelect(options);
+});
+</script>
+</span>
+<?php } ?>
+<?php } else { ?>
+<span id="el$rowindex$_partisipasikegiatan_idKegiatan" class="el_partisipasikegiatan_idKegiatan">
+<span<?= $Grid->idKegiatan->viewAttributes() ?>>
+<span class="form-control-plaintext"><?= $Grid->idKegiatan->getDisplayValue($Grid->idKegiatan->ViewValue) ?></span></span>
+</span>
+<input type="hidden" data-table="partisipasikegiatan" data-field="x_idKegiatan" data-hidden="1" name="x<?= $Grid->RowIndex ?>_idKegiatan" id="x<?= $Grid->RowIndex ?>_idKegiatan" value="<?= HtmlEncode($Grid->idKegiatan->FormValue) ?>">
+<?php } ?>
+<input type="hidden" data-table="partisipasikegiatan" data-field="x_idKegiatan" data-hidden="1" name="o<?= $Grid->RowIndex ?>_idKegiatan" id="o<?= $Grid->RowIndex ?>_idKegiatan" value="<?= HtmlEncode($Grid->idKegiatan->OldValue) ?>">
+</td>
+    <?php } ?>
+<?php
+// Render list options (body, right)
+$Grid->ListOptions->render("body", "right", $Grid->RowIndex);
+?>
+<script>
+loadjs.ready(["fpartisipasikegiatangrid","load"], () => fpartisipasikegiatangrid.updateLists(<?= $Grid->RowIndex ?>, true));
+</script>
+    </tr>
+<?php
+}
+?>
+</tbody>
+</table><!-- /.ew-table -->
+</div><!-- /.ew-grid-middle-panel -->
+<?php if ($Grid->CurrentMode == "add" || $Grid->CurrentMode == "copy") { ?>
+<input type="hidden" name="<?= $Grid->FormKeyCountName ?>" id="<?= $Grid->FormKeyCountName ?>" value="<?= $Grid->KeyCount ?>">
+<?= $Grid->MultiSelectKey ?>
+<?php } ?>
+<?php if ($Grid->CurrentMode == "edit") { ?>
+<input type="hidden" name="<?= $Grid->FormKeyCountName ?>" id="<?= $Grid->FormKeyCountName ?>" value="<?= $Grid->KeyCount ?>">
+<?= $Grid->MultiSelectKey ?>
+<?php } ?>
+<?php if ($Grid->CurrentMode == "") { ?>
+<input type="hidden" name="action" id="action" value="">
+<?php } ?>
+<input type="hidden" name="detailpage" value="fpartisipasikegiatangrid">
+</div><!-- /.ew-list-form -->
+<?php
+// Close recordset
+if ($Grid->Recordset) {
+    $Grid->Recordset->close();
+}
+?>
+<?php if ($Grid->ShowOtherOptions) { ?>
+<div class="card-footer ew-grid-lower-panel">
+<?php $Grid->OtherOptions->render("body", "bottom") ?>
+</div>
+<?php } ?>
+</div><!-- /.ew-grid -->
+<?php } else { ?>
+<div class="ew-list-other-options">
+<?php $Grid->OtherOptions->render("body") ?>
+</div>
+<?php } ?>
+<?php if (!$Grid->isExport()) { ?>
+<script>
+// Field event handlers
+loadjs.ready("head", function() {
+    ew.addEventHandlers("partisipasikegiatan");
+});
+</script>
+<script>
+loadjs.ready("load", function () {
+    // Write your table-specific startup script here, no need to add script tags.
+});
+</script>
+<?php } ?>
